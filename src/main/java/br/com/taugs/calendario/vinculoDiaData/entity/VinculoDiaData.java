@@ -1,6 +1,6 @@
 package br.com.taugs.calendario.vinculoDiaData.entity;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,9 +14,11 @@ import javax.persistence.NamedQueries;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import br.com.taugs.calendario.data.entity.Data;
 import br.com.taugs.calendario.dia.entity.Dia;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,12 +41,14 @@ public class VinculoDiaData {
 	@Column(name = "idt_vinculoDiaData")
 	private Long id;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JsonManagedReference("diaData")
-	@JoinColumn(name = "idt_dia", insertable = false, updatable = false)
+	@ManyToOne()
+	@JoinColumn(name = "idt_dia", referencedColumnName = "idt_dia")
 	private Dia dia;
 	
 	@Column(name="num_posicao")
 	private int posicao;
 	
+	@OneToMany(mappedBy = "dia", cascade = CascadeType.ALL)
+	@JsonBackReference("dataDiaData")
+	List<Data>datas;
 }

@@ -1,18 +1,22 @@
 package br.com.taugs.calendario.ano.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import br.com.taugs.calendario.data.entity.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,6 +49,10 @@ public class Ano {
 	
 	@Column(name = "nom_nome")
 	private String nome;
+	
+	@OneToMany(mappedBy = "ano", cascade = CascadeType.ALL)
+	@JsonBackReference("dataAno")
+	List<Data>datas;
 	
 
 }
