@@ -33,6 +33,15 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Ano {
 	
+	public Ano(int posicao, Integer nMeses, Integer numDias, boolean bissexto, String nome) {
+		super();
+		this.posicao = posicao;
+		this.numMeses = nMeses;
+		this.numDias = numDias;
+		this.bissexto = bissexto;
+		this.nome = nome;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "idt_ano")
@@ -42,7 +51,10 @@ public class Ano {
 	private int posicao;
 	
 	@Column(name = "num_meses")
-	private BigDecimal nMeses;
+	private Integer numMeses;
+	
+	@Column(name = "num_dias")
+	private Integer numDias;
 	
 	@Column(name = "bol_bissexto")
 	private boolean bissexto;
