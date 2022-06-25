@@ -9,14 +9,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import br.com.taugs.calendario.ano.entity.Ano;
-import br.com.taugs.calendario.calendario.configuracao.entity.ConfiguracaoCalendario;
 import br.com.taugs.calendario.calendario.entity.Calendario;
 import br.com.taugs.calendario.vinculoDiaData.entity.VinculoDiaData;
 import br.com.taugs.calendario.vinculoMesData.entity.VinculoMesData;
@@ -27,13 +26,22 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "tb_data")
-@NamedQueries({})
+@NamedQueries({//
+        @NamedQuery(name = Data.BUSCAR_DIA, query = Data.BUSCAR_DIA_QUERY) //
+})
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Data {
+
+	public static final String BUSCAR_DIA = "Data.buscarDia";
+	public static final String BUSCAR_DIA_QUERY = "SELECT registro FROM Data registro WHERE " //
+	        + "1 = 1 " //
+	        + "AND (registro.calendario = :calendario) " //
+	        + "AND (registro.mes = :mes) " //
+	        + "AND (registro.ano.nome = :ano) "; //
 
 	public Data(VinculoDiaData dia, VinculoMesData mes, Ano ano, int posicaoMes, int posicaoAno) {
 		super();
@@ -49,15 +57,15 @@ public class Data {
 	@Column(name = "idt_data")
 	private Long id;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
 	@JoinColumn(name = "idt_vinculoDiaData", referencedColumnName = "idt_vinculoDiaData")
 	private VinculoDiaData dia;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
 	@JoinColumn(name = "idt_vinculoMesData", referencedColumnName = "idt_vinculoMesData")
 	private VinculoMesData mes;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
 	@JoinColumn(name = "idt_ano", referencedColumnName = "idt_ano")
 	private Ano ano;
 
@@ -67,9 +75,12 @@ public class Data {
 	@Column(name = "num_posicaoAno")
 	private int posicaoAno;
 
+	@Column(name = "idt_calendario")
+	private Long idCalendario;
+
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "idt_calendario", referencedColumnName = "idt_calendario")
-	@JsonBackReference
+	@JoinColumn(name = "idt_calendario", referencedColumnName = "idt_calendario", insertable = false, updatable = false)
+	@JsonBackReference("calen")
 	private Calendario calendario;
 
 }

@@ -8,7 +8,11 @@ import org.springframework.stereotype.Repository;
 import br.com.taugs.calendario.dia.entity.Dia;
 
 @Repository
-public interface DiaRepository extends JpaRepository<Dia, Long>{
+public interface DiaRepository extends JpaRepository<Dia, Long> {
 
-	List<Dia> buscarTodos(String nome, String sigla);
+	List<Dia> buscarTodos(String nome, String sigla, Long idUsuario);
+
+	List<Dia> buscarTodosVinculados(Long id);
+
+	List<Dia> buscarOutros(Long id);
 }

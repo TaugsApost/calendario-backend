@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -30,6 +29,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 @Entity
 @Table(name = "tb_configuracao")
 @NamedQueries({})
@@ -40,33 +40,42 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class ConfiguracaoCalendario {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "idt_configuracao")
 	private Long id;
-	
-	@OneToMany(mappedBy = "configuracao",cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+
+	@Column(name = "bol_privado")
+	private boolean privado;
+
+	@OneToMany(mappedBy = "configuracao", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonManagedReference
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<VinculoDiaData> dias;
-	
-	@OneToMany(mappedBy = "configuracao",cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+
+	@OneToMany(mappedBy = "configuracao", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonManagedReference
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<VinculoMesData> meses;
-	
+
 	@Column(name = "num_anoInicial")
 	private Integer anoInicial;
-	
+
 	@Column(name = "num_anoFinal")
 	private Integer anoFinal;
-	
+
 	@Column(name = "bol_bissexto")
 	private Boolean bissexto;
-	
-	@OneToOne(cascade = CascadeType.ALL)
+
+	@Column(name = "nom_nome")
+	private String nome;
+
+	@Column(name = "idt_calendario")
+	private Long idCalendario;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonBackReference
-	@JoinColumn(name = "idt_calendario", referencedColumnName = "idt_calendario")
+	@JoinColumn(name = "idt_calendario", referencedColumnName = "idt_calendario", insertable = false, updatable = false)
 	private Calendario calendario;
 }

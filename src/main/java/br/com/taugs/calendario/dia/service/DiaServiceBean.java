@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import br.com.taugs.calendario.dia.entity.Dia;
 import br.com.taugs.calendario.dia.filter.DiaFilter;
 import br.com.taugs.calendario.dia.repository.DiaRepository;
+import br.com.taugs.calendario.usuario.entity.Usuario;
 import br.com.taugs.calendario.utils.BaseServiceBean;
 
 @Service
@@ -43,24 +44,38 @@ public class DiaServiceBean extends BaseServiceBean<Dia, Long> implements DiaSer
 	@Override
 	public List<Dia> consultar(DiaFilter filter) {
 		List<Dia> resultado = new ArrayList<Dia>();
-		
+
 		String nome, sigla;
-		
-		if(filter.getNome() == null) {
+
+		if (filter.getNome() == null) {
 			nome = "%%";
-		}else {
+		} else {
 			nome = "%" + filter.getNome().toUpperCase() + "%";
 		}
-		
-		if(filter.getSigla() == null) {
+
+		if (filter.getSigla() == null) {
 			sigla = "%%";
-		}else {
+		} else {
 			sigla = "%" + filter.getSigla().toUpperCase() + "%";
 		}
 
-		resultado = repositorio.buscarTodos(nome, sigla);
+		resultado = repositorio.buscarTodos(nome, sigla, filter.getIdUser());
 
 		return resultado;
+	}
+
+	@Override
+	public List<Dia> buscarTodosVinculados(Usuario user) {
+		List<Dia> resultado = new ArrayList<Dia>();
+		resultado = repositorio.buscarTodosVinculados(user.getId());
+		resultado.addAll(repositorio.buscarOutros(user.getId()));
+		return resultado;
+	}
+
+	@Override
+	public Dia salvar(Dia entity, Long idUser) {
+		entity.setIdUsuario(idUser);
+		return this.salvarEntity(entity, repositorio);
 	}
 
 }

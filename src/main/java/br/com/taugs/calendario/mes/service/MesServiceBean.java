@@ -56,9 +56,23 @@ public class MesServiceBean extends BaseServiceBean<Mes, Long> implements MesSer
 			sigla = "%" + filter.getSigla().toUpperCase() + "%";
 		}
 
-		resultado = repositorio.buscarTodos(nome, sigla);
+		resultado = repositorio.buscarTodos(nome, sigla, filter.getIdUser());
 
 		return resultado;
+	}
+
+	@Override
+	public List<Mes> buscarTodosVinculados(Long idUuser) {
+		List<Mes> resultado = new ArrayList<Mes>();
+		resultado = repositorio.buscarTodosVinculados(idUuser);
+		resultado.addAll(repositorio.buscarOutros(idUuser));
+		return resultado;
+	}
+
+	@Override
+	public Mes salvar(Mes entity, Long idUuser) {
+		entity.setIdUsuario(idUuser);
+		return this.salvarEntity(entity, repositorio);
 	}
 
 }

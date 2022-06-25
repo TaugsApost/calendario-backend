@@ -1,31 +1,36 @@
 package br.com.taugs.calendario.calendario.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.taugs.calendario.ano.entity.Ano;
-import br.com.taugs.calendario.ano.service.AnoService;
-import br.com.taugs.calendario.calendario.configuracao.entity.ConfiguracaoCalendario;
-import br.com.taugs.calendario.calendario.configuracao.service.ConfiguracaoCalendarioService;
 import br.com.taugs.calendario.calendario.entity.Calendario;
 import br.com.taugs.calendario.calendario.repository.CalendarioRepositorio;
 import br.com.taugs.calendario.data.entity.Data;
 import br.com.taugs.calendario.utils.BaseServiceBean;
 import br.com.taugs.calendario.vinculoDiaData.entity.VinculoDiaData;
+import br.com.taugs.calendario.vinculoDiaData.service.VinculoDiaDataService;
 import br.com.taugs.calendario.vinculoMesData.entity.VinculoMesData;
+import br.com.taugs.calendario.vinculoMesData.service.VinculoMesDataService;
 
 @Service
 public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> implements CalendarioService {
 
 	@Autowired
 	CalendarioRepositorio repositorio;
+
+	@Autowired
+	VinculoDiaDataService vDService;
+
+	@Autowired
+	VinculoMesDataService vMService;
+
+	private List<Data> datas;
 
 	@Override
 	public List<Calendario> listar() {
@@ -46,7 +51,10 @@ public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> imp
 
 	@Override
 	public void deletar(Long id) {
-		this.deletarEntity(id, repositorio);
+		Calendario c = detalhar(id);
+		c.getConfiguracao().getDias().clear();
+		c.getConfiguracao().getMeses().clear();
+		this.repositorio.delete(c);
 	}
 
 	@Override
@@ -57,41 +65,43 @@ public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> imp
 		final int numeroDias = numeroDiasAno(entity.getConfiguracao().getMeses());
 		final int numeroMeses = entity.getConfiguracao().getMeses().size();
 		int posicaoDia = entity.getConfiguracao().getDias().get(0).getPosicao();
-		for (int i = entity.getConfiguracao().getAnoInicial(),
-				posicaoAno = 1; i <= entity.getConfiguracao().getAnoFinal(); i++, posicaoAno++) {
+		for (int i = entity.getConfiguracao().getAnoInicial(), posicaoAno = 1; i <= entity.getConfiguracao().getAnoFinal(); i++, posicaoAno++) {
 			int posicaoEmRelacaoAoAno = 1;
 			boolean bissexto = (isBissexto(i) && entity.getConfiguracao().getBissexto());
 			String nome = String.valueOf(i);
 			Ano ano = new Ano(posicaoAno, numeroMeses, (bissexto ? numeroDias + 1 : numeroDias), bissexto, nome); // criacao do ano
 			for (VinculoMesData mV : entity.getConfiguracao().getMeses()) {
+				int numDiasMes = mV.getNumDias();
 				if (bissexto && mV.getBissexto()) {
-					mV.setNumDias(mV.getNumDias() + 1);
+					numDiasMes += 1;
 				}
-				for (int j = 1; j <= mV.getNumDias(); j++, posicaoDia++) {
+				for (int j = 1; j <= numDiasMes; j++, posicaoDia++) {
 					int indexDv = indexDiaPorPosicao(entity.getConfiguracao().getDias(), posicaoDia);
 					VinculoDiaData dV = entity.getConfiguracao().getDias().get(indexDv);
 					Data d = new Data(dV, mV, ano, j, posicaoEmRelacaoAoAno);
 					d.setCalendario(entity);
 					datas.add(d); // criacao da data
 					posicaoEmRelacaoAoAno++;
-					if(posicaoDia == entity.getConfiguracao().getDias().size()) {
-						posicaoDia = 1;
+					if (posicaoDia == entity.getConfiguracao().getDias().size()) {
+						posicaoDia = 0;
 					}
 				}
 			}
 		}
-		
+
 		entity.setDatas(datas);
+		this.datas = entity.getDatas();
 		super.beforeSave(entity);
 	}
-	
-	private void atribuirConfiguracoes(Calendario entity) {
-		for(VinculoDiaData d : entity.getConfiguracao().getDias()) {
-			d.setConfiguracao(entity.getConfiguracao());
+
+	@Override
+	protected void afterSave(Calendario entity) {
+		for (Data d : entity.getDatas()) {
+			d.setIdCalendario(entity.getId());
 		}
-		for(VinculoMesData m : entity.getConfiguracao().getMeses()) {
-			m.setConfiguracao(entity.getConfiguracao());
-		}
+		entity.getConfiguracao().setIdCalendario(entity.getId());
+		repositorio.save(entity);
+		super.afterSave(entity);
 	}
 
 	private Comparator<VinculoDiaData> compararPosicaoesDia = new Comparator<VinculoDiaData>() {
@@ -174,8 +184,7 @@ public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> imp
 		return 0;
 	}
 
-	private void ordenarRestante(List<VinculoDiaData> lista, List<VinculoDiaData> listaFinal,
-			VinculoDiaData primeiroDia, VinculoDiaData ultimoDia) {
+	private void ordenarRestante(List<VinculoDiaData> lista, List<VinculoDiaData> listaFinal, VinculoDiaData primeiroDia, VinculoDiaData ultimoDia) {
 		while (!lista.isEmpty()) {
 			VinculoDiaData d = lista.get(0);
 			int indexUltimoDia = indexDia(ultimoDia, listaFinal);
@@ -213,5 +222,20 @@ public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> imp
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public List<Calendario> buscarTodos(Long id) {
+		List<Calendario> resultado = new ArrayList<Calendario>();
+		resultado = repositorio.buscarTodos(id);
+		resultado.addAll(repositorio.buscarOutros(id));
+		return resultado;
+	}
+
+	@Override
+	public List<Calendario> buscarPorUsuario(Long id) {
+		List<Calendario> resultado = new ArrayList<Calendario>();
+		resultado = repositorio.buscarTodos(id);
+		return resultado;
 	}
 }

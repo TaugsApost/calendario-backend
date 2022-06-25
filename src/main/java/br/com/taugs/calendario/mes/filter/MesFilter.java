@@ -14,4 +14,5 @@ public class MesFilter {
 
 	private String nome;
 	private String sigla;
+	private Long idUser;
 }

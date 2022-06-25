@@ -1,4 +1,4 @@
-package br.com.taugs.calendario.usuario.filter;
+package br.com.taugs.calendario.compromisso.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -10,8 +10,12 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UsuarioFilter {
-	private String nome;
-	private String userName;
-	private String senha;
+public class CompromissoResponse {
+
+	private Long id;
+	private String titulo;
+	private String descricao;
+	private String textoData;
+	private String textoHorario;
+
 }

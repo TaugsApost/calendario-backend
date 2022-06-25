@@ -12,7 +12,7 @@ import br.com.taugs.calendario.usuario.repository.UsuarioRepository;
 import br.com.taugs.calendario.utils.BaseServiceBean;
 
 @Service
-public class UsuarioServiceBean extends BaseServiceBean<Usuario, Long> implements UsuarioService{
+public class UsuarioServiceBean extends BaseServiceBean<Usuario, Long> implements UsuarioService {
 
 	@Autowired
 	UsuarioRepository repository;
@@ -41,21 +41,21 @@ public class UsuarioServiceBean extends BaseServiceBean<Usuario, Long> implement
 	public List<Usuario> consultar(UsuarioFilter filter) {
 		List<Usuario> resultado = new ArrayList<Usuario>();
 		String nome, userName;
-		
-		if(filter.getNome()== null) {
+
+		if (filter.getNome() == null) {
 			nome = "%%";
-		}else {
+		} else {
 			nome = "%" + filter.getNome().toUpperCase() + "%";
 		}
-		
+
 		if (filter.getUserName() == null) {
 			userName = "%%";
 		} else {
 			userName = "%" + filter.getUserName().toUpperCase() + "%";
 		}
-		
+
 		resultado = repository.buscarTodos(nome, userName);
-		
+
 		return resultado;
 	}
 
@@ -66,5 +66,11 @@ public class UsuarioServiceBean extends BaseServiceBean<Usuario, Long> implement
 		user = repository.buscarPorUserName(userName);
 		return user;
 	}
-	
+
+	@Override
+	public Usuario buscarPorId(Long id) {
+		Usuario user = repository.buscarPorId(id);
+		return user;
+	}
+
 }

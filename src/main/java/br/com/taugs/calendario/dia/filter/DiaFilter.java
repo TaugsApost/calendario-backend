@@ -11,8 +11,9 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DiaFilter {
-	
+
 	private String nome;
 	private String sigla;
+	private Long idUser;
 
 }
