@@ -28,6 +28,12 @@ public class CompromissoController {
 	@Autowired
 	CompromissoService service;
 
+	@GetMapping(value = "/listar")
+	public ResponseEntity<List<Compromisso>> listar() {
+		List<Compromisso> lista = service.listar();
+		return new ResponseEntity<List<Compromisso>>(lista, HttpStatus.OK);
+	}
+
 	@PostMapping(value = "/listarTodos")
 	public ResponseEntity<List<Compromisso>> listar(@RequestBody Usuario user) {
 		List<Compromisso> resultado = service.buscarPorUsuario(user.getId());

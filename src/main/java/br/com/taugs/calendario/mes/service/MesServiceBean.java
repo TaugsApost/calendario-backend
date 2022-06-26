@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import br.com.taugs.calendario.mes.entity.Mes;
 import br.com.taugs.calendario.mes.filter.MesFilter;
 import br.com.taugs.calendario.mes.repository.MesRepository;
+import br.com.taugs.calendario.usuario.entity.Usuario;
+import br.com.taugs.calendario.usuario.repository.UsuarioRepository;
+import br.com.taugs.calendario.usuario.service.UsuarioService;
 import br.com.taugs.calendario.utils.BaseServiceBean;
 
 @Service
@@ -16,6 +19,12 @@ public class MesServiceBean extends BaseServiceBean<Mes, Long> implements MesSer
 
 	@Autowired
 	MesRepository repositorio;
+
+	@Autowired
+	UsuarioRepository userRepositorio;
+
+	@Autowired
+	UsuarioService userService;
 
 	@Override
 	public List<Mes> listar() {
@@ -35,7 +44,10 @@ public class MesServiceBean extends BaseServiceBean<Mes, Long> implements MesSer
 
 	@Override
 	public void deletar(Long id) {
-		this.deletarEntity(id, repositorio);
+		Mes m = this.detalhar(id);
+		Usuario u = userService.detalhar(m.getIdUsuario());
+		u.getMeses().remove(m);
+		userRepositorio.save(u);
 	}
 
 	@Override

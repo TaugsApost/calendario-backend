@@ -10,6 +10,8 @@ import br.com.taugs.calendario.dia.entity.Dia;
 import br.com.taugs.calendario.dia.filter.DiaFilter;
 import br.com.taugs.calendario.dia.repository.DiaRepository;
 import br.com.taugs.calendario.usuario.entity.Usuario;
+import br.com.taugs.calendario.usuario.repository.UsuarioRepository;
+import br.com.taugs.calendario.usuario.service.UsuarioService;
 import br.com.taugs.calendario.utils.BaseServiceBean;
 
 @Service
@@ -17,6 +19,12 @@ public class DiaServiceBean extends BaseServiceBean<Dia, Long> implements DiaSer
 
 	@Autowired
 	DiaRepository repositorio;
+
+	@Autowired
+	UsuarioRepository userRepositorio;
+
+	@Autowired
+	UsuarioService userService;
 
 	// EntityManager em
 
@@ -38,7 +46,14 @@ public class DiaServiceBean extends BaseServiceBean<Dia, Long> implements DiaSer
 
 	@Override
 	public void deletar(Long id) {
-		this.deletarEntity(id, repositorio);
+		// Dia d = this.detalhar(id);
+		// d.setIdUsuario(null);
+		// this.salvar(d);
+		// this.deletarEntity(id, repositorio);
+		Dia d = this.detalhar(id);
+		Usuario u = userService.detalhar(d.getIdUsuario());
+		u.getDias().remove(d);
+		userRepositorio.save(u);
 	}
 
 	@Override
