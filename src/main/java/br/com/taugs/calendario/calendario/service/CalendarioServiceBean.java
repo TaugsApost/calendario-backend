@@ -12,6 +12,8 @@ import br.com.taugs.calendario.ano.entity.Ano;
 import br.com.taugs.calendario.calendario.entity.Calendario;
 import br.com.taugs.calendario.calendario.repository.CalendarioRepositorio;
 import br.com.taugs.calendario.data.entity.Data;
+import br.com.taugs.calendario.usuario.entity.Usuario;
+import br.com.taugs.calendario.usuario.service.UsuarioService;
 import br.com.taugs.calendario.utils.BaseServiceBean;
 import br.com.taugs.calendario.vinculoDiaData.entity.VinculoDiaData;
 import br.com.taugs.calendario.vinculoDiaData.service.VinculoDiaDataService;
@@ -29,6 +31,9 @@ public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> imp
 
 	@Autowired
 	VinculoMesDataService vMService;
+
+	@Autowired
+	UsuarioService userService;
 
 	private List<Data> datas;
 
@@ -54,7 +59,10 @@ public class CalendarioServiceBean extends BaseServiceBean<Calendario, Long> imp
 		Calendario c = detalhar(id);
 		c.getConfiguracao().getDias().clear();
 		c.getConfiguracao().getMeses().clear();
-		this.repositorio.delete(c);
+		Usuario u = userService.detalhar(c.getIdUsuario());
+		u.getCalendarios().remove(c);
+		userService.salvar(u);
+		// this.repositorio.delete(c);
 	}
 
 	@Override

@@ -69,7 +69,7 @@ public class VinculoMesData {
 	@JsonBackReference("dataMesData")
 	List<Data> datas;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "idt_configuracao", referencedColumnName = "idt_configuracao")
 	@JsonBackReference
 	@ToString.Exclude

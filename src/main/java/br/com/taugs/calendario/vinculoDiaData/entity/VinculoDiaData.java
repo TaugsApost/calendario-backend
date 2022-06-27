@@ -64,7 +64,7 @@ public class VinculoDiaData {
 	@Column(name = "bol_diaInicial")
 	private Boolean diaInicialCalendario;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "idt_configuracao", referencedColumnName = "idt_configuracao")
 	@JsonBackReference
 	@ToString.Exclude
